@@ -8,19 +8,32 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.io._
 import scopt.OParser
 
+import edu.famaf.paradigmas.actors.Supervisor
+
+
+case class Subscription(name: String, feeds: List[String], url: String)
+
 object SubscriptionApp extends App {
   implicit val formats = DefaultFormats
 
   val logger: Logger = LoggerFactory.getLogger("edu.famaf.paradigmas.SubscriptionApp")
-
-  case class Subscription(name: String, feeds: List[String], url: String)
 
   case class Config(
     input: String = "",
     maxUptime: Int = 10
   )
 
-  private def readSubscriptions(filename: String): List[Subscription] = ???
+  private def readSubscriptions(): List[Subscription] = {
+    // args is a list that receives the parameters passed by console.
+    println(s"Reading subscriptions from ${args}")
+    val filename = args.length match {
+      case 0 => "subscriptions.json"
+      case _ => args(0)
+    }
+    println(s"Reading subscriptions from ${filename}")
+    val jsonContent = Source.fromFile(filename)
+    (parse(jsonContent.mkString)).extract[List[Subscription]]
+  }
 
   val builder = OParser.builder[Config]
   val argsParser = {
@@ -41,6 +54,8 @@ object SubscriptionApp extends App {
   OParser.parse(argsParser, args, Config()) match {
     case Some(config) =>
       val system = ActorSystem[Supervisor.SupervisorCommand](Supervisor(), "subscription-app")
+      val subscriptions = readSubscriptions()
+      system ! Supervisor.ReceiveSubscriptions(subscriptions, system)
       Thread.sleep(config.maxUptime * 1000)
       system ! Supervisor.Stop()
     case _ => ???

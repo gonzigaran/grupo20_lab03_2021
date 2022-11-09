@@ -21,6 +21,8 @@ Los mensajes que se transmiten entre los actores planteados se puede ver refleja
 
 ## Actores para subscribirse
 
+Para esta sección, reutilizamos la función `readSubscriptions` del laboratorio anterior, que se encarga de leer las subscripciones de un `json` y convertirlo en un `List[Suscriptcion]`. Luego implementamos los actores mencionados en la parte anterior, en donde los actores `Feed` reutilizan los `Parser` creados en el lab anterior e imprimen por consola lo que obtienen. 
+
 ## Request-Response
 
 ## Integración
