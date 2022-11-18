@@ -45,8 +45,9 @@ En esta parte se realiza la integración de todo lo propuesto, utilizando el par
 
 ## Investigación
 
-
 ### Si quisieran extender el sistema para soportar el conteo de entidades nombradas del laboratorio 2, ¿qué parte de la arquitectura deberían modificar? Justificar.
+
+Una opción de implementar esto, sería agregar un actor más que se encargue de procesar el conteo de entidades, y luego, cada vez que el `Supervisor` reciba el texto de algún `Feed` para imprimir, que en vez de eso, lo envíe a este nuevo actor. Una vez que el nuevo actor recolecte todos los textos, puede realizar el conteo de palabras y pasarselo al `Supervisor` para que lo imprima en pantalla.
 
 ### Si quisieran exportar los datos (ítems) de las suscripciones a archivos de texto (en lugar de imprimirlas por pantalla):
 
@@ -54,9 +55,17 @@ En esta parte se realiza la integración de todo lo propuesto, utilizando el par
 
 #### ¿Dónde deberían utilizar dicho patrón si quisieran acumular todos los datos totales? ¿Y si lo quisieran hacer por sitio?
 
+Para este caso, en el que es mejor reunir toda la información antes de almacenarla en un archivo de texto, tal vez conviene utilizar el patrón de interacción **Per session child Actor**, porque es una buena opción para cuando un actor requiere la respuesta de varios actores antes de continuar.
+
+En este caso, el `Supervisor` solicita la información a todos los `UrlManagers` y luego estos le solicitan a sus `Feeds`. Cada `UrlManager` recolecta toda la información de cada `Feed` y recién al finalizar envía al `Supervisor`. En caso de querer ir imprimiendo por sitio en diferentes archivos, este protocolo también facilita esa operación. 
+
 ### ¿Qué problema trae implementar este sistema de manera síncrona?
+
+Claramente esta arquitectura realiza la tarea en mucho menos tiempo, al aprovechar los recursos para realizar las tareas en simultaneo. Pero más allá de optimizar los recursos, realizar esta implementación de manera sincónica podría traer varios problemas porque se realizan muchas consultas HTTP a sitios externos al sistema, lo que podría ocacionar varios problemas, y en cualquier caso, si una consulta tiene problemas, retrasa todo el sistema. Un conflicto en una consulta podría interrumpir todo el proceso, en cambio con esta arquitectura, se cae solamente el actor correspondiente y el resto del sistema sigue procesando la información.
+
 
 ### ¿Qué les asegura el sistema de pasaje de mensajes y cómo se diferencia con un semáforo/mutex?
 
+El sistema de pasaje de mensajes nos asegura que no se puede acceder al estado interno de cada mensaje, por lo que los estados internos no son considerados regiones críticas. Asumimos que los mensajes no van a llegar en el mismo orden siempre a los actores, por lo que no tenemos que preocuparnos por esa sincronización con semáforos que vayan pausando la ejecución.
 
-## **Punto estrella:** Mejor modelo
+## **Punto estrella:** Subscripción a _Reddit/Json_
