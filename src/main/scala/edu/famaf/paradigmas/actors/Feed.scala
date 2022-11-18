@@ -20,24 +20,39 @@ object Feed {
   final case class ReceiveSubscriptionFeed(
     url: String,
     feed: ActorRef[FeedCommand],
-    urlmanager: ActorRef[UrlManagerCommand]
+    replyTo: ActorRef[FeedResponse]
   ) extends FeedCommand
+  final case class GetFeedData(
+    replyTo: ActorRef[FeedResponse]
+  ) extends FeedCommand
+
+  sealed trait FeedResponse
+  final case class FeedResponseMessage(msg: String) extends FeedResponse
 }
 
 class Feed(context: ActorContext[Feed.FeedCommand])
     extends AbstractBehavior[Feed.FeedCommand](context) {
   context.log.info("Feed Started")
+  
+  private var url : String = ""
 
   import Feed._
 
   override def onMessage(msg: FeedCommand): Behavior[FeedCommand] = {
     msg match {
       case Stop() => Behaviors.stopped
-      case ReceiveSubscriptionFeed(url, feed, urlmanager) => {
-          context.log.info("Feed: {}", url)
+      case ReceiveSubscriptionFeed(urlMessage, feed, replyTo) => {
+          // val parser = new RSSParser()
+          // val feed_content = parser.readText(url)
+          // context.log.info(feed_content.mkString(" "))
+          url = urlMessage
+          replyTo ! FeedResponseMessage(url)
+          Behaviors.same
+      }
+      case GetFeedData(replyTo) => {
           val parser = new RSSParser()
-          val feed_content = parser.readText(url)
-          context.log.info(feed_content.mkString(" "))
+          val feed_content = parser.readText(url).mkString(" ")
+          replyTo ! FeedResponseMessage(feed_content)
           Behaviors.same
       }
     }

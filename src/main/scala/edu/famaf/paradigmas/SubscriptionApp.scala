@@ -55,7 +55,9 @@ object SubscriptionApp extends App {
     case Some(config) =>
       val system = ActorSystem[Supervisor.SupervisorCommand](Supervisor(), "subscription-app")
       val subscriptions = readSubscriptions()
-      system ! Supervisor.ReceiveSubscriptions(subscriptions, system)
+      system ! Supervisor.ReceiveSubscriptions(subscriptions)
+      Thread.sleep(config.maxUptime * 500)
+      system ! Supervisor.PrintData(system)
       Thread.sleep(config.maxUptime * 1000)
       system ! Supervisor.Stop()
     case _ => ???

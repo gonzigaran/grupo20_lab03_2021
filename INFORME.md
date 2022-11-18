@@ -25,8 +25,23 @@ Para esta sección, reutilizamos la función `readSubscriptions` del laboratorio
 
 ## Request-Response
 
+Para esta parte del laboratorio, se va a modificar el intercambio de mensajes entre los actores. Ya que al trabajar con solicitudes y respuestas, se puede lograr un implementación más acabada de lo que se busca en este proyecto. 
+
+Por un lado se va a separar la parte de realizar las subscripciones, y la parte de obtener los datos. Cuando el sistema comience, se va a enviar al `Supervisor` las subscripciones del archivo de entrada, y se crearán todos los actores necesarios, manteniendo un registro de quienes son los *hijos* de cada actor a partir de la respuesta.
+
+Luego, la aplicación le solicitará al `Supervisor` que obtenga los mensajes para cada feed; este se lo solicitará a los `UrlManager` y estos a cada `Feed` particular. La información se va respondiendo hacia arriba, el `Supervisor` recolecta todo y lo imprime por pantalla. 
+
+Para la implementación de este modelo, se utilizó el patrón de interacción propuesto en las consignas del laboratorio, `ask-pattern`, ya que tiene algunas ventajas por sobre los otros. El actor que envía el mensaje puede saber si el actor destinatario recibió y procesó el mensaje. También con este método no se sobrecarga de mensjes para asegurar que se recibió y además de contar con un timer en el caso de que algún actor se demore mucho en responder. 
+
+Para esta implementación, se utilizó el siguiente protocolo:
+
+- El `Supervisor` pregunta a cada `UrlManager` por la información
+- Luego, cada `UrlManager` le solicita a cada `Feed` que busque la información en un url asignada, y se la devuelva. Una vez que recorre todos los `Feeds` le comunica al `Supervisor` que ya terminó.
+- Cada respuesta de los `Feeds` lo enviará su `UrlManager` correspondiente al `Supervisor` y este lo imprimirá por consola
+
 ## Integración
 
+En esta parte se realiza la integración de todo lo propuesto, utilizando el parser desarrollado en el laboratorio 2 para obtener los datos de cada pedido HTTP.
 
 ## Investigación
 
