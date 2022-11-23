@@ -69,3 +69,8 @@ Claramente esta arquitectura realiza la tarea en mucho menos tiempo, al aprovech
 El sistema de pasaje de mensajes nos asegura que no se puede acceder al estado interno de cada mensaje, por lo que los estados internos no son considerados regiones críticas. Asumimos que los mensajes no van a llegar en el mismo orden siempre a los actores, por lo que no tenemos que preocuparnos por esa sincronización con semáforos que vayan pausando la ejecución.
 
 ## **Punto estrella:** Subscripción a _Reddit/Json_
+
+La implementación de este punto estrella se encuentra en la rama `json`. Para realizar esto, se cambio el protocolo del tipo de dato `Subscription`, agregandole el atributo `urlType`. 
+Luego, este atributo es pasado por `UrlManager` a cada `Feed` y este lo almacena como un atributo interno del actor. 
+
+Luego, cuando el feed tenga que obtener la información mediante una consulta Http, crea un Parser de acuerdo al tipo de url, puede ser un `RSSParser` o un `RedditParser`, utilizando lo ya realizado en el laboratorio 2. Luego el funcionamiento es igual. 
