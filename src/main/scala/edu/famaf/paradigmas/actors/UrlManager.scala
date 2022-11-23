@@ -64,7 +64,7 @@ class UrlManager(context: ActorContext[UrlManager.UrlManagerCommand])
           feedword => 
             val url: String = sub.url.replace("%s", feedword)
             val feed = context.spawn(Feed(), url.replace('/', '-'))
-            context.ask(feed, replyTo => Feed.ReceiveSubscriptionFeed(url, feed, replyTo)) {
+            context.ask(feed, replyTo => Feed.ReceiveSubscriptionFeed(url, sub.urlType, feed, replyTo)) {
               case Success(Feed.FeedResponseMessage(url)) => FeedReciveResponse(url, feed)
               case Failure(e) => FeedFailedMessage(e.getMessage)
             }

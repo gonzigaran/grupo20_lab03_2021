@@ -10,7 +10,7 @@ import scopt.OParser
 import edu.famaf.paradigmas.actors.Supervisor
 
 
-case class Subscription(name: String, feeds: List[String], url: String)
+case class Subscription(name: String, feeds: List[String], urlType: String, url: String)
 
 object SubscriptionApp extends App {
   implicit val formats = DefaultFormats

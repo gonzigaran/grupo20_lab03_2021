@@ -8,7 +8,7 @@ import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.AbstractBehavior
 import akka.actor.typed.scaladsl.Behaviors
 
-import edu.famaf.paradigmas.parser.RSSParser
+import edu.famaf.paradigmas.parser.{RSSParser, RedditParser}
 
 object Feed {
   def apply(): Behavior[FeedCommand] = Behaviors.setup(context => new Feed(context))
@@ -17,6 +17,7 @@ object Feed {
   final case class Stop() extends FeedCommand
   final case class ReceiveSubscriptionFeed(
     url: String,
+    urlType: String,
     feed: ActorRef[FeedCommand],
     replyTo: ActorRef[FeedResponse]
   ) extends FeedCommand
@@ -33,22 +34,27 @@ class Feed(context: ActorContext[Feed.FeedCommand])
   context.log.info("Feed Started")
   
   private var url : String = ""
+  private var utype : String = ""
 
   import Feed._
 
   override def onMessage(msg: FeedCommand): Behavior[FeedCommand] = {
     msg match {
       case Stop() => Behaviors.stopped
-      case ReceiveSubscriptionFeed(urlMessage, feed, replyTo) => {
+      case ReceiveSubscriptionFeed(urlMessage, urlType, feed, replyTo) => {
           // val parser = new RSSParser()
           // val feed_content = parser.readText(url)
           // context.log.info(feed_content.mkString(" "))
           url = urlMessage
+          utype = urlType
           replyTo ! FeedResponseMessage(url)
           Behaviors.same
       }
       case GetFeedData(replyTo) => {
-          val parser = new RSSParser()
+          val parser = utype match {
+            case "rss" => new RSSParser()
+            case "reddit" => new RedditParser()
+          }
           val feed_content = parser.readText(url).mkString(" ")
           replyTo ! FeedResponseMessage(feed_content)
           Behaviors.same

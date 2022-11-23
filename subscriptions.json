@@ -2,11 +2,20 @@
     {
         "url": "https://www.chicagotribune.com/arcio/rss/category/%s/",
         "feeds": ["business"],
+        "urlType": "rss",
         "name": "chicagotribune"
     },
     {
         "url": "https://rss.nytimes.com/services/xml/rss/nyt/%s.xml",
         "feeds": ["Business", "Technology"],
+        "urlType": "rss",
         "name": "nytimes"
+    },
+    {
+        "url": "https://www.reddit.com/r/%s/hot/.json",
+        "feeds": ["Marketing", "Sales", "Entrepreneur", "Startups"],
+        "urlType": "reddit",
+        "name": "reddit"
     }
+
 ]
