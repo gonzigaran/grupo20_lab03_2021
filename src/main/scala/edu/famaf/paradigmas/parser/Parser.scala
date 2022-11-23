@@ -1,6 +1,6 @@
 package edu.famaf.paradigmas.parser
 
-import scalaj.http.{Http, HttpResponse}
+import scalaj.http.Http
 import scala.xml.XML
 import org.json4s._
 

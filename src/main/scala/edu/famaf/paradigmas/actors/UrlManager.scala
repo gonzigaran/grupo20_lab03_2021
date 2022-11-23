@@ -7,7 +7,6 @@ import akka.actor.typed.Signal
 import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.AbstractBehavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.scaladsl.LoggerOps
 import scala.util.{Success, Failure}
 import scala.concurrent.duration._
 import akka.util.Timeout

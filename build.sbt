@@ -6,6 +6,12 @@ scalaVersion := "2.13.1"
 
 lazy val akkaVersion = "2.6.14"
 
+scalacOptions += "-Ywarn-unused:imports"
+
+semanticdbVersion := scalafixSemanticdb.revision
+
+semanticdbEnabled := true
+
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,
   "com.github.scopt" %% "scopt" % "4.0.1",

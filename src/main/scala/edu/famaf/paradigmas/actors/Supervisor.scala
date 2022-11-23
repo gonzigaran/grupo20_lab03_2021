@@ -7,9 +7,7 @@ import akka.actor.typed.Signal
 import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.AbstractBehavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.scaladsl.LoggerOps
 import scala.util.{Success, Failure}
-import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.duration._
 import akka.util.Timeout
 
@@ -29,7 +27,10 @@ object Supervisor {
     supervisor: ActorRef[SupervisorCommand]
     ) extends SupervisorCommand
   final case class PrintUrlData(urlTemplate: String, msg: String) extends SupervisorCommand
-  final case class UrlManagerReciveResponse(urlTemplate: String, urlManager: ActorRef[UrlManager.UrlManagerCommand]) extends SupervisorCommand
+  final case class UrlManagerReciveResponse(
+    urlTemplate: String,
+    urlManager: ActorRef[UrlManager.UrlManagerCommand]
+    ) extends SupervisorCommand
   final case class UrlManagerFailedMessage(error_msg: String) extends SupervisorCommand
 }
 
@@ -49,7 +50,9 @@ class Supervisor(context: ActorContext[Supervisor.SupervisorCommand])
           sub =>
             val urlManager = context.spawn(UrlManager(), sub.name)
             context.ask(urlManager, replyTo => UrlManager.ReceiveSubscription(sub, replyTo)) {
-              case Success(UrlManager.UrlManagerResponseMessage(urlTemplate)) => UrlManagerReciveResponse(urlTemplate, urlManager)
+              case Success(UrlManager.UrlManagerResponseMessage(urlTemplate)) => {
+                UrlManagerReciveResponse(urlTemplate, urlManager)
+              }
               case Failure(e) => UrlManagerFailedMessage(e.getMessage)
             }
         }
@@ -66,7 +69,9 @@ class Supervisor(context: ActorContext[Supervisor.SupervisorCommand])
         urlToUrlManager.map { 
           case (urlTemplate, urlManager) =>
             context.ask(urlManager, replyTo => UrlManager.GetUrlData(replyTo, supervisor)) {
-              case Success(UrlManager.UrlManagerResponseMessage(msg)) => PrintUrlData(urlTemplate, msg)
+              case Success(UrlManager.UrlManagerResponseMessage(msg)) => {
+                PrintUrlData(urlTemplate, msg)
+              }
               case Failure(e) => UrlManagerFailedMessage(e.getMessage)
             }
         }
